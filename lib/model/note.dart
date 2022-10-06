@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
+
 class Note {
   Note({
     String? title,
@@ -19,7 +21,14 @@ class Note {
     );
   }
 
-  toJson() => json.encode(Note(title: _title, description: _description));
+  Map<String, String> toJson() {
+    final Map<String, String> doc = {};
+
+    doc[UniqueKey().toString()] =
+        '''{"title": "$title", "description": "$description"}''';
+
+    return doc;
+  }
 
   String get title => _title ?? '';
   String get description => _description ?? '';
