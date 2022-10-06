@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:notes_app/controller/controller_notes.dart';
+import 'package:notes_app/injector.dart';
 import 'package:notes_app/model/note.dart';
 import 'package:notes_app/view/view_new_note.dart';
 
 class ViewHome extends StatefulWidget {
-  const ViewHome(this._controller, {super.key});
-
-  final ControllerNotes _controller;
+  const ViewHome({super.key});
 
   @override
   State<ViewHome> createState() => _ViewHomeState();
@@ -16,9 +15,9 @@ class ViewHome extends StatefulWidget {
 
 class _ViewHomeState extends State<ViewHome> {
   @override
-  void initState() {
-    items = widget._controller.listNotes();
-    super.initState();
+  void didChangeDependencies() {
+    items = getNotes();
+    super.didChangeDependencies();
   }
 
   @override
@@ -30,8 +29,7 @@ class _ViewHomeState extends State<ViewHome> {
 
   appBar() => AppBar();
 
-  checkBody() =>
-      widget._controller.listNotes().isNotEmpty ? body() : emptyBody();
+  checkBody() => getNotes().isNotEmpty ? body() : emptyBody();
 
   late List<Note> items;
 
@@ -69,9 +67,11 @@ class _ViewHomeState extends State<ViewHome> {
         child: const Icon(Icons.add),
       );
 
+  List<Note> getNotes() => Injector.of(context).controllerNotes.listNotes();
+
   FutureOr<List<Note>> _onNoteSaved(List<Note>? value) {
     items.clear();
-    setState(() => items = widget._controller.listNotes());
+    setState(() => items = getNotes());
     return items;
   }
 }
