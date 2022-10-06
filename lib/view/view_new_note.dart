@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/injector.dart';
 import 'package:notes_app/model/note.dart';
 import 'package:notes_app/view/component/notes_text_field.dart';
-import 'package:notes_app/controller/controller_notes.dart';
 
 class ViewNewNote extends StatelessWidget {
   ViewNewNote({super.key});
-
-  final ControllerNotes _controller = ControllerNotes();
 
   final NotesTextField _fieldTitle = NotesTextField(
     hintText: "Title",
@@ -41,12 +39,12 @@ class ViewNewNote extends StatelessWidget {
               width: 250,
               child: ElevatedButton(
                 onPressed: () {
-                  _controller.newNote(
+                  final controller = Injector.of(context).controllerNotes;
+                  controller.newNote(
                     _fieldTitle.controller.text,
                     _fieldDescription.controller.text,
                   );
-                  Navigator.of(context)
-                      .pop<List<Note>>(_controller.listNotes());
+                  Navigator.of(context).pop<List<Note>>(controller.listNotes());
                 },
                 child: const Text("Save"),
               ),
