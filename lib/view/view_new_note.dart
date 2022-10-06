@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/model/note.dart';
 import 'package:notes_app/view/component/notes_text_field.dart';
-import 'package:universal_html/html.dart';
+import 'package:notes_app/controller/controller_notes.dart';
 
 class ViewNewNote extends StatelessWidget {
   ViewNewNote({super.key});
+
+  final ControllerNotes _controller = ControllerNotes();
 
   final NotesTextField _fieldTitle = NotesTextField(
     hintText: "Title",
@@ -18,12 +20,12 @@ class ViewNewNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(),
-        body: body(),
+        body: body(context),
       );
 
   appBar() => AppBar();
 
-  body() => Center(
+  body(BuildContext context) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -38,30 +40,18 @@ class ViewNewNote extends StatelessWidget {
             SizedBox(
               width: 250,
               child: ElevatedButton(
-                onPressed: createNewNote,
+                onPressed: () {
+                  _controller.newNote(
+                    _fieldTitle.controller.text,
+                    _fieldDescription.controller.text,
+                  );
+                  Navigator.of(context)
+                      .pop<List<Note>>(_controller.listNotes());
+                },
                 child: const Text("Save"),
-              ),
-            ),
-            SizedBox(
-              width: 250,
-              child: ElevatedButton(
-                onPressed: listNotes,
-                child: const Text("List"),
               ),
             ),
           ],
         ),
-      );
-
-  listNotes() =>
-      window.localStorage.entries.map((e) => Note.fromLocalStorage(e.value));
-
-  createNewNote() => window.localStorage.addAll(
-        {
-          '${UniqueKey()}': Note(
-                  title: _fieldTitle.controller.text,
-                  description: _fieldDescription.controller.text)
-              .toJson()
-        },
       );
 }
