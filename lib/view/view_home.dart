@@ -1,21 +1,54 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:notes_app/controller/controller_notes.dart';
+import 'package:notes_app/model/note.dart';
 import 'package:notes_app/view/view_new_note.dart';
 
-class ViewHome extends StatelessWidget {
-  const ViewHome({super.key});
+class ViewHome extends StatefulWidget {
+  const ViewHome(this._controller, {super.key});
+
+  final ControllerNotes _controller;
+
+  @override
+  State<ViewHome> createState() => _ViewHomeState();
+}
+
+class _ViewHomeState extends State<ViewHome> {
+  @override
+  void initState() {
+    items = widget._controller.listNotes();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: appBar(),
-        body: emptyBody(),
+        body: checkBody(),
         floatingActionButton: fab(context),
       );
 
   appBar() => AppBar();
 
-  body() => Column(
-        children: [ListView()],
-      );
+  checkBody() =>
+      widget._controller.listNotes().isNotEmpty ? body() : emptyBody();
+
+  late List<Note> items;
+
+  body() {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) => ListTile(
+              title: Text(items[index].title),
+            ),
+          ),
+        )
+      ],
+    );
+  }
 
   emptyBody() => const Center(
         child: Text(
@@ -27,7 +60,18 @@ class ViewHome extends StatelessWidget {
   fab(BuildContext context) => FloatingActionButton(
         tooltip: "New note",
         onPressed: () => Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ViewNewNote())),
+            .push<List<Note>>(
+              MaterialPageRoute(
+                builder: (context) => ViewNewNote(),
+              ),
+            )
+            .then<List<Note>>(_onNoteSaved),
         child: const Icon(Icons.add),
       );
+
+  FutureOr<List<Note>> _onNoteSaved(List<Note>? value) {
+    items.clear();
+    setState(() => items = widget._controller.listNotes());
+    return items;
+  }
 }
